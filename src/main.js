@@ -7,7 +7,8 @@ import '../node_modules/material-design-icons/iconfont/material-icons.css'
 import vuetify from './plugins/vuetify'
 import Header from './components/Header.vue'
 import VueScrollTo from 'vue-scrollto'
-import AnimateCss from 'animate.css';
+import AnimateCss from 'animate.css'
+import moment from 'moment'
 
 Vue.config.productionTip = false
 
@@ -25,6 +26,7 @@ new Vue({
   router,
   vuetify,
   VueScrollTo,
+  moment,
   render: h => h(App)
 }).$mount('#app')
 

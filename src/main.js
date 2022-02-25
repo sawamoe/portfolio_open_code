@@ -9,6 +9,7 @@ import Header from './components/Header.vue'
 import VueScrollTo from 'vue-scrollto'
 import AnimateCss from 'animate.css'
 import moment from 'moment'
+import { Tweet, Moment, Timeline } from 'vue-tweet-embed'
 
 Vue.config.productionTip = false
 
@@ -27,6 +28,9 @@ new Vue({
   vuetify,
   VueScrollTo,
   moment,
+  Tweet,
+  Moment,
+  Timeline,
   render: h => h(App)
 }).$mount('#app')
 

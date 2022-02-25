@@ -47,9 +47,7 @@
     <div class="tab">
       <ul>
 
-        <li v-for="luxiemData in luxiemDatas" :key="luxiemData.name" :style="luxiemData.tabColor"
-          @click="upcomingJson(luxiemData.channelId,luxiemData.eventType,luxiemData.name,luxiemData.Id);tabToggle(luxiemData.name)"
-          style="cursor: pointer" :class="{tabStyle:luxiemData.isActive}">
+        <li v-for="luxiemData in luxiemDatas" :key="luxiemData.name" :style="luxiemData.tabColor" @click="upcomingJson(luxiemData.channelId,luxiemData.eventType,luxiemData.name,luxiemData.Id);tabToggle(luxiemData.name)" style="cursor: pointer" :class="{tabStyle:luxiemData.isActive}">
           <div class="tabText">
             <span class="material-icons">{{luxiemData.icon}}</span>
             <p>{{luxiemData.name}}</p>
@@ -72,33 +70,36 @@
 
           </th>
           <th class="lineTime">
-            <div class="selectTime" v-if="!ENlanguage" @mouseover="mouseover" @mouseleave="mouseleave"
-              style="cursor: pointer">
-              <span>
-                <p>{{pullDownText}}時間 ▼</p>
-                <ul class="dropDown" v-if=pullDownOpen>
-                  <li v-for="pullDown in pullDowns" :key="pullDown.id"
-                    @click="dropDownSelect(pullDown.name,pullDown.timeDifference)" style="cursor: pointer">
-                    <p>
-                      {{ pullDown.name }}
-                    </p>
-                  </li>
-                </ul>
-              </span>
+            <div v-if="!ENlanguage">
+              <div class="selectTime" @mouseover="mouseover" @mouseleave="mouseleave" style="cursor: pointer">
+                <span>
+                  <p>{{pullDownText}} ▼</p>
+
+                  <ul class="dropDown" v-if=pullDownOpen>
+                    <li v-for="pullDown in pullDowns" :key="pullDown.id" @click="dropDownSelect(pullDown.name,pullDown.timeDifference)" style="cursor: pointer">
+                      <p>
+                        {{ pullDown.name }}
+                      </p>
+                    </li>
+                  </ul>
+                </span>
+              </div>
+              <p>時間</p>
             </div>
-            <div class="selectTime" v-if="ENlanguage" @mouseover="mouseover" @mouseleave="mouseleave"
-              style="cursor: pointer">
-              <span>
-                {{pullDownTextEN}}Time ▼
-                <ul class="dropDown" v-if=pullDownOpen>
-                  <li v-for="pullDown in pullDownsEN" :key="pullDown.id"
-                    @click="dropDownSelect(pullDown.name,pullDown.timeDifference)" style="cursor: pointer">
-                    <p>
-                      {{ pullDown.name }}
-                    </p>
-                  </li>
-                </ul>
-              </span>
+            <div v-if="ENlanguage">
+              <div class="selectTime" @mouseover="mouseover" @mouseleave="mouseleave" style="cursor: pointer">
+                <span>
+                  {{pullDownTextEN}} ▼
+                  <ul class="dropDown" v-if=pullDownOpen>
+                    <li v-for="pullDown in pullDownsEN" :key="pullDown.id" @click="dropDownSelect(pullDown.name,pullDown.timeDifference)" style="cursor: pointer">
+                      <p>
+                        {{ pullDown.name }}
+                      </p>
+                    </li>
+                  </ul>
+                </span>
+              </div>
+              <p>Time</p>
             </div>
           </th>
         </tr>
@@ -236,14 +237,14 @@
       <!--戻るボタン-->
       <div class="backBtn" @click="$router.push('/')" style="cursor: pointer">▶︎Back</div>
       <!--言語切り替えボタン-->
-
-
       <div class="switchArea">
         <input type="checkbox" id="switch1">
         <label for="switch1" @click="ENlanguage= !ENlanguage" style="cursor: pointer"><span></span></label>
         <div id="swImg"></div>
       </div>
     </div>
+
+
 
   </div>
 
@@ -263,13 +264,13 @@
         videoUpcomingThumbnails: null,
         liveStreamingDeta: null, //これは２つめのaxiosで取得
         videoPublishTimeJSON: null,
-        videoUnixNowTimezone:null, 
+        videoUnixNowTimezone: null,
         videoTimeUTCDay: null,
         videoTimeUTCHM: null,
         videoTimeSelectDay: null,
         videoTimeSelectHM: null,
         videoURL: null,
-        apiKey: '######',
+        apiKey: '###',
         //メンバー個人のデータ
         luxiemDatas: [{
             Id: '0',
@@ -323,6 +324,7 @@
         pullDownOpen: false,
         pullDownText: '日本',
         pullDownTextEN: 'Japan',
+        resultTimeDifference: null,
         pullDowns: [{ //時差は分換算
             id: 1,
             name: '日本',
@@ -368,7 +370,6 @@
       }
     },
     methods: {
-
       //最初に表示するメッセージ
       firstView() {
         if (this.videos == '') {
@@ -379,7 +380,6 @@
           }
         }
       },
-
       //タブのactive切り替え
       tabToggle(name) {
         const result = this.luxiemDatas.find((luxiemDatas) => {
@@ -387,8 +387,6 @@
         })
         result.isActive = !result.isActive
       },
-
-
       //基準時間を選択するプルダウンの表示
       mouseover() {
         this.pullDownOpen = true;
@@ -396,7 +394,6 @@
       mouseleave() {
         this.pullDownOpen = false;
       },
-
       //基準時間を選択するプルダウンを選択した後
       dropDownSelect(countryName, timeDifference) {
         this.pullDownOpen = false;
@@ -405,8 +402,6 @@
         } else {
           this.pullDownText = countryName
         }
-
-
         for (let i = 0; i < this.videos.length; i++) {
           let videoItems = this.videos[i]
           let unixNowTimezone = Date.parse(videoItems.videoPublishTimeJSON)
@@ -416,45 +411,36 @@
           let unixSelect = unixUCT + (timeDifference * 60 * 1000)
           let TimeUTC = new Date(unixUCT)
           let TimeSelect = new Date(unixSelect)
-
-          videoItems.videoTimeUTCDay = `${TimeUTC.getMonth()}/${TimeUTC.getDate()}`
+          videoItems.videoTimeUTCDay = `${Number(TimeUTC.getMonth())+1}/${TimeUTC.getDate()}`
           videoItems.videoTimeUTCHM =
             `${('0' + TimeUTC.getHours()).slice(-2)}:${('0' + TimeUTC.getMinutes()).slice(-2)}`
-
-          videoItems.videoTimeSelectDay = `${TimeSelect.getMonth()}/${TimeSelect.getDate()}`
+          videoItems.videoTimeSelectDay = `${Number(TimeSelect.getMonth())+1}/${TimeSelect.getDate()}`
           videoItems.videoTimeSelectHM =
             `${('0' + TimeSelect.getHours()).slice(-2)}:${('0' + TimeSelect.getMinutes()).slice(-2)}`
         }
-
-
       },
-
       upcomingJson(channelId, eventType, name, Id) {
         //最初にif文で重複したオブジェクトデータが既にないか確認する
         if (this.videos.findIndex((objkey) => {
             return objkey.channelId === channelId
           }) == -1) {
-
           //ここでチャンネル状況のAPIを取得
           axios.get(
               `https://www.googleapis.com/youtube/v3/search?channelId=${channelId}&key=${this.apiKey}&part=snippet&eventType=${eventType}&type=video`
             )
             .then(response => {
               this.videoUpcoming = response.data
-
               //配信予定がなかったときのポップアップ
               if (this.videoUpcoming.items == '' && this.ENlanguage == false) {
                 this.noDataMsg = `今「${name}」の配信予定はないみたい`
               } else if (this.videoUpcoming.items == '' && this.ENlanguage == true) {
                 this.noDataMsg = `I don't think there are any plans for ${name}'s stream.`
               } else {
-
                 for (let i = 0; i < this.videoUpcoming.items.length; i++) {
                   this.videoUpcomingItems = this.videoUpcoming.items[i]
                   this.videoUpcomingVideoId = this.videoUpcomingItems.id.videoId
                   this.videoUpcomingTitle = this.videoUpcomingItems.snippet.title
                   this.videoUpcomingThumbnails = this.videoUpcomingItems.snippet.thumbnails.high.url
-
                   //ここで動画の配信時間のAPIを取得
                   axios.get(
                       `https://www.googleapis.com/youtube/v3/videos?part=liveStreamingDetails&key=${this.apiKey}&id=${this.videoUpcomingVideoId}`
@@ -463,20 +449,36 @@
                       this.liveStreamingDeta = response.data
                       this.videoPublishTimeJSON = this.liveStreamingDeta.items[0].liveStreamingDetails
                         .scheduledStartTime
+
+                      if (this.ENlanguage == true) {
+                        let countryName = this.pullDownTextEN
+                        let resultSearch = this.pullDownsEN.find((pullDownsEN) => {
+                          return pullDownsEN.name === countryName
+                        })
+                        this.resultTimeDifference = resultSearch.timeDifference
+
+                      } else {
+                        let countryName = this.pullDownText
+                        let resultSearch = this.pullDowns.find((pullDowns) => {
+                          return pullDowns.name === countryName
+                        })
+                        this.resultTimeDifference = resultSearch.timeDifference
+                      }
+
                       let unixNowTimezone = Date.parse(this.videoPublishTimeJSON)
                       let now = new Date();
                       let TimezoneDifference = now.getTimezoneOffset()
                       let unixUCT = unixNowTimezone + (TimezoneDifference * 60 * 1000)
-                      let unixSelect = unixUCT + (-540 * 60 * 1000)
+                      let unixSelect = unixUCT + (this.resultTimeDifference * 60 * 1000)
                       let TimeUTC = new Date(unixUCT)
                       let TimeSelect = new Date(unixSelect)
-                      this.videoTimeUTCDay = `${TimeUTC.getMonth()}/${TimeUTC.getDate()}`
+
+                      this.videoTimeUTCDay = `${Number(TimeUTC.getMonth())+1}/${TimeUTC.getDate()}`
                       this.videoTimeUTCHM =
                         `${('0' + TimeUTC.getHours()).slice(-2)}:${('0' + TimeUTC.getMinutes()).slice(-2)}`
-                      this.videoTimeSelectDay = `${TimeSelect.getMonth()}/${TimeSelect.getDate()}`
+                      this.videoTimeSelectDay = `${Number(TimeSelect.getMonth())+1}/${TimeSelect.getDate()}`
                       this.videoTimeSelectHM =
                         `${('0' + TimeSelect.getHours()).slice(-2)}:${('0' + TimeSelect.getMinutes()).slice(-2)}`
-
                       //取得したAPIをvideosに格納
                       this.videos.push({
                         Id: Id,
@@ -505,10 +507,21 @@
               }
             })
         }
+
+        //RSS1からデータを取得する（
+        // このデータには配信状況が含まれていないため使えない
+        // 今の時間を取得し、公式APIの動画の開始時間と比較して表示すれば配信予定の動画を表示できる
+        // created(channelId){
+        //     this.axios.get('https://api.rss2json.com/v1/api.json?rss_url=https://www.youtube.com/feeds/videos.xml?channel_id=UC2GuoutVyegg6PUK88lLpjw')
+        //     .then(response => { 
+        //       this.users = response.data 
+        //     })
+        // },
+
+
+
       },
     },
-
-
   }
 </script>
 
@@ -553,7 +566,6 @@
     content: '';
   }
 
-
   h2 {
     margin: 50px 0;
     display: flex;
@@ -597,7 +609,6 @@
     display: flex;
     justify-content: center;
     margin: 50px;
-
   }
 
   .noDataMsg {
@@ -607,6 +618,7 @@
     color: #FFF;
     width: 50vw;
     padding: 1.5rem;
+    border-radius: 2%;
   }
 
   .noDataMsg:before {
@@ -622,7 +634,6 @@
     border-left-color: #E23221;
   }
 
-
   .tab>ul {
     display: flex;
     justify-content: space-between;
@@ -632,14 +643,12 @@
     height: 100px;
   }
 
-
   .tab li {
     background-color: #E23221;
     border-radius: 5% 5% 0% 0%;
     padding: 15px 4%;
     bottom: -20px;
   }
-
 
   .tabText {
     font-size: 1.5rem;
@@ -662,6 +671,7 @@
 
   .selectTime {
     background-color: rgb(0, 0, 0);
+    padding: 0.5rem 0;
   }
 
   .dropDown {
@@ -671,16 +681,20 @@
     z-index: 10;
     cursor: pointer;
     list-style: none;
-    padding: 10px;
-    line-height: 3rem;
+    padding: 5px;
+
+  }
+
+  .dropDown>li {
+    /* margin: 0.5rem; */
+    padding: 0.5rem;
   }
 
   .dropDown>li:hover {
     list-style: none;
-    background: red;
+    background: #E23221;
     width: auto;
   }
-
 
   table {
     background-color: #E23221;
@@ -695,7 +709,7 @@
     background-color: #E23221;
     height: 100px;
     color: white;
-    font-size: clamp(18px, 2.3vw, 25px);
+    font-size: clamp(12px, 2.2vw, 20px);
   }
 
   .liveStreaming td {
@@ -807,7 +821,6 @@
     font-family: 'Shippori Antique B1', cursive;
   }
 
-
   /*言語切り替えボタン*/
   .switchArea {
     position: fixed;
@@ -866,18 +879,8 @@
     background: #E23221;
   }
 
-
-
-
-
-
-
   /*以下アニメーションの設定*/
-
-
-
   /*背景のアニメーション */
-
   @import url('https://fonts.googleapis.com/css?family=Exo:400,700');
 
   body {
@@ -885,7 +888,6 @@
   }
 
   .circles {
-
     overflow: hidden;
   }
 
@@ -986,10 +988,7 @@
     border-color: transparent transparent transparent #A660A750;
   }
 
-
-
   @keyframes animate {
-
     0% {
       transform: translateY(100px) rotate(0deg);
       opacity: 1;
@@ -1003,10 +1002,7 @@
     }
   }
 
-
-
   /*スクロールのアニメーション*/
-
   #scroll {
     margin: 50px;
   }

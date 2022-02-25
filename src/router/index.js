@@ -56,6 +56,11 @@ const routes = [
     name: 'TimeDifference',
     component: () => import('../views/TimeDifference.vue')
   },
+  {
+    path: '/twitterInfo',
+    name: 'twitterInfo',
+    component: () => import('../views/twitterInfo.vue')
+  },
 ]
 
 const router = new VueRouter({
